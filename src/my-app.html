@@ -19,6 +19,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="my-icons.html">
 
 <dom-module id="my-app">
@@ -62,6 +63,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
+    <firebase-app
+      api-key="AIzaSyAatzvb9J1PgRs2rA0wRBXVRNCT0oLPf4c"
+      auth-domain="fleet-app-a6148.firebaseapp.com"
+      database-url="https://fleet-app-a6148.firebaseio.com">
+    </firebase-app>
+
+    <firebase-auth 
+      id="auth"  
+      provider="anonymous" 
+      user="{{user}}"
+      signed-in="{{signedIn}}"
+    >
+    </firebase-auth>
+
     <app-location route="{{route}}"></app-location>
     <app-route
         route="{{route}}"
@@ -92,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </app-header>
 
         <iron-pages role="main" selected="[[page]]" attr-for-selected="name">
-          <my-view1 name="view1"></my-view1>
+          <my-view1 id="view1" name="view1"></my-view1>
           <my-view2 name="view2"></my-view2>
           <my-view3 name="view3"></my-view3>
         </iron-pages>
@@ -118,6 +133,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
       },
+      ready: function() {
+        this.$.auth.signInAnonymously().then(function(response) {
+          console.log(response);
+        }).catch(function(error) {
+          console.log(error);
+        });
+      },
 
       observers: [
         '_routePageChanged(routeData.page)'
@@ -131,6 +153,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // load page import on demand.
         this.importHref(
           this.resolveUrl('my-' + page + '.html'), null, null, true);
+      },
+      addFleet: function() {
+        console.log('foo');
       }
 
     });

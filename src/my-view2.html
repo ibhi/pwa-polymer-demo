@@ -9,6 +9,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <dom-module id="my-view2">
 
@@ -43,13 +47,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin: 16px 0;
         color: #212121;
       }
+
     </style>
 
+    <!-- <firebase-document
+      id="document"
+      path="users/{{userId}}/fleets/{{fleetId}}"
+      data="{{fleet}}">
+    </firebase-document> -->
+
     <div class="card">
-      <div class="circle">2</div>
-      <h1>View Two</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
+      <paper-input label="Fleet Name" id="fleetName" value="{{fleet.name}}">
+        <iron-icon icon="maps:directions-bus" prefix></iron-icon>
+        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        </paper-icon-button>
+      </paper-input>
+      <paper-input label="Longitude" id="longitude" value="{{fleet.longitude}}">
+        <iron-icon icon="maps:edit-location" prefix></iron-icon>
+        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        </paper-icon-button>
+      </paper-input>
+      <paper-input label="Latitude" id="latitude" value="{{fleet.latitude}}">
+        <iron-icon icon="maps:edit-location" prefix></iron-icon>
+        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        </paper-icon-button>
+      </paper-input>
+      <paper-button raised on-tap="addFleet"><iron-icon icon="add"></iron-icon>Add</paper-button>
     </div>
 
   </template>
@@ -58,8 +81,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     Polymer({
 
-      is: 'my-view2'
-
+      is: 'my-view2',
+      properties: {
+        // fleet: {
+        //   type: Object,
+        //   notify: true
+        // }
+      },
+      ready: function() {
+        this.fleet = {
+          name: null,
+          longitude: null,
+          latitude: null
+        }
+      },
+      addFleet: function() {
+        console.log(this.fleet);
+        var ref = firebase.database().ref('fleets');
+        ref.push(this.fleet);
+        this.fleet = {};
+        // this.domHost.addFleet(this.fleet);
+      }
     });
 
   </script>
