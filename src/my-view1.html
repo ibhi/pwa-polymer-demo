@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
 
 <dom-module id="my-view1">
 
@@ -43,10 +44,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin: 16px 0;
         color: #212121;
       }
+      google-map {
+        height: 600px;
+      }
     </style>
 
     <div class="card">
-      
+      <google-map latitude="37.77493" longitude="-122.41942" fit-to-markers>
+        <template is="dom-repeat" items="{{fleets}}" as="fleet">
+          <google-map-marker latitude="{{fleet.lat}}" longitude="{{fleet.long}}" title="{{fleet.name}}"></google-map-marker>          
+        </template>
+      </google-map>
     </div>
 
   </template>
@@ -55,7 +63,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     Polymer({
 
-      is: 'my-view1'
+      is: 'my-view1',
+      properties: {
+        fleets: {
+          type: Array,
+          value: [{"name":"Denise","lat":"49.83383","long":"19.9383"},
+                  {"name":"Helen","lat":"33.29565","long":"61.95221"},
+                  {"name":"Beverly","lat":"53.45198","long":"17.53169"},
+                  {"name":"Roy","lat":"-4.06253","long":"144.06609"},
+                  {"name":"Julie","lat":"59.8254","long":"10.8512"},
+                  {"name":"Sean","lat":"46.42476","long":"33.14721"},
+                  {"name":"Clarence","lat":"6.69903","long":"-72.73233"},
+                  {"name":"Peter","lat":"-7.13972","long":"110.405"},
+                  {"name":"Irene","lat":"-7.0069","long":"108.4708"},
+                  {"name":"Virginia","lat":"56.12128","long":"101.17767"}],
+          notify: true
+        }
+      }
 
     });
 
