@@ -58,7 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <google-map latitude="49.83383" longitude="19.9383" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
         <template is="dom-repeat" items="[[fleets]]" as="fleet">
-          <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>          
+          <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>
         </template>
       </google-map>
     </div>
@@ -79,18 +79,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         map: Object,
         fleets: {
           type: Array,
-          // value: function() {
-          //   return [{"name":"Denise","latitude":"49.83383","longitude":"19.9383"},
-          //         {"name":"Helen","latitude":"33.29565","longitude":"61.95221"},
-          //         {"name":"Beverly","latitude":"53.45198","longitude":"17.53169"},
-          //         {"name":"Roy","latitude":"-4.06253","longitude":"144.06609"},
-          //         {"name":"Julie","latitude":"59.8254","longitude":"10.8512"},
-          //         {"name":"Sean","latitude":"46.42476","longitude":"33.14721"},
-          //         {"name":"Clarence","latitude":"6.69903","longitude":"-72.73233"},
-          //         {"name":"Peter","latitude":"-7.13972","longitude":"110.405"},
-          //         {"name":"Irene","latitude":"-7.0069","longitude":"108.4708"},
-          //         {"name":"Virginia","latitude":"56.12128","longitude":"101.17767"}];
-          // },
           notify: true
         }
       },
