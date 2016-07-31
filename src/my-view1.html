@@ -48,11 +48,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 600px;
       }
     </style>
+    <!-- <firebase-query
+        id="query"
+        path="/fleets"
+        data="{{fleets}}" log>
+    </firebase-query> -->
 
     <div class="card">
-      <google-map latitude="37.77493" longitude="-122.41942" fit-to-markers>
+      <google-map latitude="49.83383" longitude="19.9383" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
         <template is="dom-repeat" items="{{fleets}}" as="fleet">
-          <google-map-marker latitude="{{fleet.lat}}" longitude="{{fleet.long}}" title="{{fleet.name}}"></google-map-marker>          
+          <google-map-marker latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]"></google-map-marker>          
         </template>
       </google-map>
     </div>
@@ -65,25 +70,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       is: 'my-view1',
       properties: {
-        fleets: {
-          type: Array,
-          value: [{"name":"Denise","lat":"49.83383","long":"19.9383"},
-                  {"name":"Helen","lat":"33.29565","long":"61.95221"},
-                  {"name":"Beverly","lat":"53.45198","long":"17.53169"},
-                  {"name":"Roy","lat":"-4.06253","long":"144.06609"},
-                  {"name":"Julie","lat":"59.8254","long":"10.8512"},
-                  {"name":"Sean","lat":"46.42476","long":"33.14721"},
-                  {"name":"Clarence","lat":"6.69903","long":"-72.73233"},
-                  {"name":"Peter","lat":"-7.13972","long":"110.405"},
-                  {"name":"Irene","lat":"-7.0069","long":"108.4708"},
-                  {"name":"Virginia","lat":"56.12128","long":"101.17767"}],
-          notify: true
-        }
+        // fleets: {
+        //   type: Array,
+        //   observer: '_fleetsChanged',
+        //   notify: true
+        // }
+        // fleets: {
+        //   type: Array,
+        //   // value: [{"name":"Denise","lat":"49.83383","long":"19.9383"},
+        //   //         {"name":"Helen","lat":"33.29565","long":"61.95221"},
+        //   //         {"name":"Beverly","lat":"53.45198","long":"17.53169"},
+        //   //         {"name":"Roy","lat":"-4.06253","long":"144.06609"},
+        //   //         {"name":"Julie","lat":"59.8254","long":"10.8512"},
+        //   //         {"name":"Sean","lat":"46.42476","long":"33.14721"},
+        //   //         {"name":"Clarence","lat":"6.69903","long":"-72.73233"},
+        //   //         {"name":"Peter","lat":"-7.13972","long":"110.405"},
+        //   //         {"name":"Irene","lat":"-7.0069","long":"108.4708"},
+        //   //         {"name":"Virginia","lat":"56.12128","long":"101.17767"}],
+        //   notify: true
+        // }
       },
-      addFleet: function(fleet) {
-        this.fleets.push(fleet);
-        console.log(this.fleets);
-      }
+      ready: function() {
+        var ref = firebase.database().ref('fleets');
+        ref.on('value', function(snapshot) {
+          this.fleets = this._toArray(snapshot.val());
+          this.fleets = this.fleets.map(function(fleet) {
+            return {
+              name: fleet.name,
+              latitude: +fleet.latitude,
+              longitude: +fleet.longitude
+            }
+          })
+          console.log('Fleets ', this.fleets);
+        }.bind(this));
+      },
+      _fleetsChanged: function(newVal, oldVal) {
+        console.log('Old Value', oldVal);
+        console.log('New Value', newVal);
+        // this.fleets = newVal;
+      },
+      _toArray: function(obj) {
+            return Object.keys(obj).map(function(key) {
+                return obj[key];
+            });
+        }
 
     });
 
