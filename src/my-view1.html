@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="../bower_components/geo-location/geo-location.html">
 
 <dom-module id="my-view1">
 
@@ -52,12 +54,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <firebase-query
         id="query"
         path="/fleets"
-        data="{{fleets}}" log>
+        data="{{fleets}}">
     </firebase-query>
-    <div class="card">
 
-      <google-map latitude="49.83383" longitude="19.9383" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
-        <template is="dom-repeat" items="[[fleets]]" as="fleet">
+    <app-indexeddb-mirror id="updatesFleets"
+      key="/fleets"
+      data="[[fleets]]"
+      persisted-data="{{activeFleets}}"
+      >
+    </app-indexeddb-mirror>
+
+    <div class="card">
+      <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
+      <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
+        <template is="dom-repeat" items="[[activeFleets]]" as="fleet">
           <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>
         </template>
       </google-map>
@@ -77,12 +87,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //   notify: true
         // }
         map: Object,
-        fleets: {
+        activeFleets: {
           type: Array,
           notify: true
         }
       },
       ready: function() {
+        console.log('Indexed db', this.$.updatesFleets.getStoredValue('/fleets'));
         // setTimeout(function() {
 
         //   this.fleets =  [{"name":"Denise","latitude":49.83383,"longitude":19.9383},

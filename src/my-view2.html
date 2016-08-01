@@ -13,6 +13,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/geo-location/geo-location.html">
 
 <dom-module id="my-view2">
 
@@ -47,6 +49,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin: 16px 0;
         color: #212121;
       }
+      google-map {
+        height: 600px;
+      }
 
     </style>
 
@@ -57,22 +62,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-document> -->
 
     <div class="card">
-      <paper-input label="Fleet Name" id="fleetName" value="{{fleet.name}}">
+      <paper-input label="Fleet Name" id="fleetName" value="{{fleetName}}">
         <iron-icon icon="maps:directions-bus" prefix></iron-icon>
-        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        <paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear">
         </paper-icon-button>
       </paper-input>
-      <paper-input label="Longitude" id="longitude" value="{{fleet.longitude}}">
+      <paper-input label="Longitude (Click on the map below to populate)" id="longitude" value="{{longitude}}">
         <iron-icon icon="maps:edit-location" prefix></iron-icon>
-        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        <paper-icon-button suffix on-click="clearInput()" icon="clear" alt="clear" title="clear">
         </paper-icon-button>
       </paper-input>
-      <paper-input label="Latitude" id="latitude" value="{{fleet.latitude}}">
+      <paper-input label="Latitude (Click on the map below to populate)" id="latitude" value="{{latitude}}">
         <iron-icon icon="maps:edit-location" prefix></iron-icon>
-        <paper-icon-button suffix onclick="clearInput()" icon="clear" alt="clear" title="clear">
+        <paper-icon-button suffix on-click="clearInput()" icon="clear" alt="clear" title="clear">
         </paper-icon-button>
       </paper-input>
       <paper-button raised on-tap="addFleet"><iron-icon icon="add"></iron-icon>Add</paper-button>
+      <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
+      <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0" click-events="true" on-google-map-click="_addFleetInMap">
+        <google-map-marker map="[[map]]" latitude="[[currentLat]]" longitude="[[currentLng]]" title="You are here!" draggable="true"></google-map-marker>
+        <google-map-marker map="[[map]]" latitude="{{latitude}}" longitude="{{longitude}}" title="{{fleetName}}" draggable="true"></google-map-marker>
+        
+      </google-map>
     </div>
 
   </template>
@@ -85,22 +96,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         // fleet: {
         //   type: Object,
-        //   notify: true
+        //   value: function() {
+        //     return {
+        //       name: null,
+        //       longitude: null,
+        //       latitude: null
+        //     };
+        //   }
+          // notify: true,
+          // reflectToAttribute: true
         // }
       },
+      // observers: ['_fleetChanged(fleet.longitude, fleet.latitude)'],
       ready: function() {
-        this.fleet = {
-          name: null,
-          longitude: null,
-          latitude: null
-        }
+        // this.fleet = {
+        //   name: null,
+        //   longitude: null,
+        //   latitude: null,
+        //   observer: '_fleetChanged'
+        // }
       },
       addFleet: function() {
-        console.log(this.fleet);
+        // console.log(this.fleet);
         var ref = firebase.database().ref('fleets');
-        ref.push(this.fleet);
-        this.fleet = {};
+        var fleet = {
+          name: this.fleetName,
+          latitude: this.latitude,
+          longitude: this.longitude
+        }
+        ref.push(fleet);
+        this.fleetName = null;
+        this.latitude = null;
+        this.longitude = null;
+        // this.fleet = {};
         // this.domHost.addFleet(this.fleet);
+      },
+      _addFleetInMap: function(e) {
+        console.log('Event ', e.detail.latLng.lat());
+        this.latitude = e.detail.latLng.lat().toString();
+        this.longitude = e.detail.latLng.lng().toString();
+        console.log(this.latitude);
+      },
+      clearInput: function(e) {
+        console.log(e.target.parentElement);
       }
     });
 
