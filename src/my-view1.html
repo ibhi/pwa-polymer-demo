@@ -10,9 +10,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/google-map/google-map.html">
-<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<!-- <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html"> -->
 <link rel="import" href="../bower_components/geo-location/geo-location.html">
-
+<link rel="import" href="../bower_components/idb-node/idb-node.html">
 <dom-module id="my-view1">
 
   <template>
@@ -63,7 +63,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       persisted-data="{{activeFleets}}"
       >
     </app-indexeddb-mirror>-->
-
+    <idb-node id="db" database-name="idb-fleets-1" version="1" object-store="fleets" key-path="id"></idb-node>
     <div class="card">
       <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
       <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}"  api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
@@ -83,7 +83,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         fleets: {
           type: Array,
-          // observer: '_fleetsChanged',
           notify: true
         },
         map: Object,
@@ -93,59 +92,83 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           notify: true
         }
       },
-      // observers: ['_fleetsChanged(fleets.splices)'],
       ready: function() {
-       // console.log('Indexed db', this.$.updatesFleets.getStoredValue('/fleets'));
-        // setTimeout(function() {
+        var idb = document.querySelector('idb-node');
+        idb.addEventListener('idb-ready', function() {
+          console.log('database ready');
+          var db = document.querySelector('#db');
 
-        //   this.fleets =  [{"name":"Denise","latitude":49.83383,"longitude":19.9383},
-        //         {"name":"Helen","latitude":33.29565,"longitude":61.95221},
-        //         {"name":"Beverly","latitude":53.45198,"longitude":17.53169},
-        //         {"name":"Roy","latitude":-4.06253,"longitude":144.06609},
-        //         {"name":"Julie","latitude":59.8254,"longitude":10.8512},
-        //         {"name":"Sean","latitude":46.42476,longitude:33.14721},
-        //         {"name":"Clarence","latitude":6.69903,"longitude":-72.73233},
-        //         {"name":"Peter","latitude":-7.13972,"longitude":110.405},
-        //         {"name":"Irene","latitude":-7.0069,"longitude":108.4708},
-        //         {"name":"Virginia","latitude":56.12128,"longitude":101.17767}];
-        // }.bind(this), 3000);
+          var ref = firebase.database().ref('fleets');
+          ref.on('value', function(snapshot) {
+            console.log(snapshot.val());
+            console.log(this._toArray(snapshot.val()));
+            this.fleets = this._toArray(snapshot.val());
+            // this.fleets = this.fleets.map(function(fleet) {
+            //   return {
+            //     name: fleet.name,
+            //     latitude: +fleet.latitude,
+            //     longitude: +fleet.longitude
+            //   };
+            // });
 
-        var ref = firebase.database().ref('fleets');
-        ref.on('value', function(snapshot) {
-          this.fleets = this._toArray(snapshot.val());
-        
-          this.fleets = this.fleets.map(function(fleet) {
-            return {
-              name: fleet.name,
-              latitude: +fleet.latitude,
-              longitude: +fleet.longitude
-            }
-          })
-         
-           getIDBData().then(function(data){           
-           this.persistedData = data;
-            console.log(this.persistedData);           
+            idb.putBulk(this.fleets).then(function() {
+              console.log('Initial fleet data saved');
+            });
+
+            db.getAll().then(function(fleets) {
+              this.persistedData = fleets;
+            }.bind(this));
           }.bind(this));
-          addData(this.fleets);
-         
         }.bind(this));
       },
-      // _fleetsChanged: function(newVal) {
-      //   // console.log('Old Value', oldVal);
-      //   console.log('New Value', newVal);
-      //  // cache.put('fleets', newVal);
-      // //  this.persistedFleets = cache.get('fleets');
-      //   // this.fleets = newVal;
-      // },
+
       _toArray: function(obj) {
-            return Object.keys(obj).map(function(key) {
-                return obj[key];
-            });
-        },
+        return Object.keys(obj).map(function(key) {
+          var fleet = obj[key];
+          fleet['id'] = key;
+          return fleet;
+        });
+      },
 
+      _openDatabase: function () {
+        
+        if (!navigator.serviceWorker) {
+          return Promise.resolve();
+        }
 
-  
-    
+        return idb.open('assetStore',3, function(upgradeDb) {
+          
+          var store = upgradeDb.createObjectStore('assets', {
+            keyPath: 'name'
+          });  
+        });
+      },
+
+      _dbPromise: function() {
+        return this._openDatabase();  
+      },
+
+      _addData: function(data) { 
+        this._dbPromise().then(function(db) {
+          if (!db) return;
+          var tx = db.transaction('assets', 'readwrite');
+          var store = tx.objectStore('assets');
+          data.forEach(function(asset) {
+            store.put(asset);
+          });
+        });
+      },
+
+      _getIDBData: function(){
+        return this._dbPromise().then(function(db) {   
+          if (!db) return;
+
+          var assetList = db.transaction('assets')
+            .objectStore('assets');
+          console.log('Asset list', assetList.getAll());
+          return assetList.getAll()
+        });
+      }
 
     });
 
