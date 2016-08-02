@@ -45,20 +45,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         margin: 16px 0;
         color: #212121;
       }
+      .mar20{
+        margin:20px 0;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .btn-prim{
+        background:#4285f4;
+        color:#fff;
+      }
+      .tog-block{
+        display:none;
+      }
     </style>
 
     <div class="card">
         
-     <div><paper-toggle-button on-change="_subscribe" noink>Enable Push Notifications</paper-toggle-button><div>
-       <div>
-            <paper-button  noink raised on-tap="_sendNotifications">Send Notifications</paper-button>
+     <div>
+       <paper-toggle-button on-change="_subscribe" noink class="tog-btn" >Enable Push Notifications</paper-toggle-button>
+    <div>
+       <div class="mar20 text-center tog-block">
+            <paper-button id="sendNote" class="btn-prim" noink raised on-tap="_sendNotifications">Send Notifications</paper-button>
        </div>
     </div>
 
   </template>
 
   <script>
-
+    function togFunction(status){
+      
+      var div = document.getElementsByClassName('tog-block')[0];
+            if (status) {
+                div.style.display = 'block';
+            }
+            else {
+                div.style.display = 'none';
+            }
+    }
     Polymer({
 
       is: 'my-view3',
@@ -76,8 +100,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 userVisibleOnly: true 
               })
               .then(function (subscription) {
-                console.log("Successfully subscribed: ", subscription);
-                //changeStatus(true);
+                console.log("Successfully subscribed: ", subscription);      
+               togFunction(true);
+            
               })
               .catch(function (error) {
                 console.error(error);
@@ -99,7 +124,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   subscription.unsubscribe()
                     .then(function () {
                       console.log("Successfully unsubscribed");
-                    // changeStatus(false);
+                   togFunction(false);
+                   
                     })
                     .catch(function (error) {
                       console.error(error);
@@ -139,26 +165,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     });
     
-//To subscript push notification
-function subscribe() {
-  navigator.serviceWorker.ready
-  .then(function(registration) {
-    if (!registration.pushManager) {
-      alert("Your browser doesn't support push notifications");
-      return;
-    }
-    registration.pushManager.subscribe({
-      userVisibleOnly: true 
-    })
-    .then(function (subscription) {
-      console.log("Successfully subscribed: ", subscription);
-      //changeStatus(true);
-    })
-    .catch(function (error) {
-      console.error(error);
-    })
-  })
-}
 
 //To unsubscribe push notification
 function unsubscribe() {

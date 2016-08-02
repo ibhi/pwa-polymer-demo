@@ -122,13 +122,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
           })
          
-  
-          addData(this.fleets);
-          getIDBData().then(function(data){           
+           getIDBData().then(function(data){           
            this.persistedData = data;
             console.log(this.persistedData);           
           }.bind(this));
-
+          addData(this.fleets);
+         
         }.bind(this));
       },
       // _fleetsChanged: function(newVal) {

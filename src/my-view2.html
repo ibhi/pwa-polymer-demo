@@ -52,7 +52,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       google-map {
         height: 600px;
       }
-
+      .btn-prim{
+        background:#4285f4;
+        color:#fff;
+      }
+      .add-btn-align{
+        margin:20px auto;
+        width:92px;
+      }
     </style>
 
     <!-- <firebase-document
@@ -64,20 +71,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="card">
       <paper-input label="Fleet Name" id="fleetName" value="{{fleetName}}">
         <iron-icon icon="maps:directions-bus" prefix></iron-icon>
-        <paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear">
-        </paper-icon-button>
+      
       </paper-input>
       <paper-input label="Longitude (Click on the map below to populate)" id="longitude" value="{{longitude}}">
         <iron-icon icon="maps:edit-location" prefix></iron-icon>
-        <paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear">
-        </paper-icon-button>
+     
       </paper-input>
       <paper-input label="Latitude (Click on the map below to populate)" id="latitude" value="{{latitude}}">
         <iron-icon icon="maps:edit-location" prefix></iron-icon>
-        <paper-icon-button suffix on-click="clearInput" icon="clear" alt="clear" title="clear">
-        </paper-icon-button>
+      
       </paper-input>
-      <paper-button raised on-tap="addFleet"><iron-icon icon="add"></iron-icon>Add</paper-button>
+      <div class="add-btn-align">
+       <paper-button raised on-tap="addFleet" class="btn-prim"><iron-icon icon="add"></iron-icon>Add</paper-button>
+      </div>
       <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
       <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0" click-events="true" on-google-map-click="_addFleetInMap">
         <google-map-marker map="[[map]]" latitude="[[currentLat]]" longitude="[[currentLng]]" title="You are here!" draggable="true"></google-map-marker>
@@ -119,12 +125,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       addFleet: function() {
         // console.log(this.fleet);
         var ref = firebase.database().ref('fleets');
-        var fleet = {
-          name: this.fleetName,
-          latitude: this.latitude,
-          longitude: this.longitude
+        if(this.fleetName && this.latitude && this.longitude){
+            var fleet = {
+              name: this.fleetName,
+              latitude: this.latitude,
+              longitude: this.longitude
+            }
+            ref.push(fleet);
+        }else {
+            alert("Please enter a valid Fleet Name , Latitude and longitude");
         }
-        ref.push(fleet);
         this.fleetName = null;
         this.latitude = null;
         this.longitude = null;
