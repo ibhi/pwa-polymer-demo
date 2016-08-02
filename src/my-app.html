@@ -21,7 +21,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="my-icons.html">
+<script>
 
+
+  </script>
 <dom-module id="my-app">
 
   <template>
@@ -92,7 +95,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="view1" href="/view1">Assets Around</a>
           <a name="view2" href="/view2">Add Assets</a>
-          <a name="view3" href="/view3">View Three</a>
+          <a name="view3" href="/view3">Try Notifications</a>
         </iron-selector>
       </app-drawer>
 
@@ -120,6 +123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
 
+
     Polymer({
 
       is: 'my-app',
@@ -139,6 +143,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }).catch(function(error) {
           console.log(error);
         });
+         
       },
 
       observers: [

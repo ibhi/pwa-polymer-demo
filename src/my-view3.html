@@ -9,6 +9,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <dom-module id="my-view3">
 
@@ -46,10 +48,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <div class="card">
-      <div class="circle">3</div>
-      <h1>View Three</h1>
-      <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
+        
+     <div><paper-toggle-button on-change="_subscribe" noink>Enable Push Notifications</paper-toggle-button><div>
+       <div>
+            <paper-button  noink raised on-tap="_sendNotifications">Send Notifications</paper-button>
+       </div>
     </div>
 
   </template>
@@ -58,9 +61,110 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     Polymer({
 
-      is: 'my-view3'
+      is: 'my-view3',
+      isSubscribed:Boolean,
+      _subscribe :function(obj) {
+            if(obj.currentTarget.checked){
+              this.isSubscribed = true;
+            navigator.serviceWorker.ready
+            .then(function(registration) {
+              if (!registration.pushManager) {
+                alert("Your browser doesn't support push notifications");
+                return;
+              }
+              registration.pushManager.subscribe({
+                userVisibleOnly: true 
+              })
+              .then(function (subscription) {
+                console.log("Successfully subscribed: ", subscription);
+                //changeStatus(true);
+              })
+              .catch(function (error) {
+                console.error(error);
+              })
+            })
+      }else {
+          this.isSubscribed = false;
+            navigator.serviceWorker.ready
+              .then(function(registration) {
+                registration.pushManager.getSubscription()
+                .then(function (subscription) {
+                  //If not push subscription, then return
+                  if(!subscription) {
+                    console.error("Unable to unregister from push notification");
+                    return;
+                  }
+
+                  //Unsubscribe
+                  subscription.unsubscribe()
+                    .then(function () {
+                      console.log("Successfully unsubscribed");
+                    // changeStatus(false);
+                    })
+                    .catch(function (error) {
+                      console.error(error);
+                    });
+                })
+                .catch(function (error) {
+                  console.error("Failed to unsubscribe push notification");
+                });
+              })
+      }
+    },
+
+  _sendNotifications: function(subscription){
+    navigator.serviceWorker.ready
+    .then(function(registration) {
+      registration.pushManager.getSubscription()
+      .then(function (subscription) {
+      
+        fetch("/send_notification", {
+          method: "post",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(subscription)
+        })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          console.error("data", data);
+        })
+      })
+    })
+  }
+
 
     });
+    
+//To subscript push notification
+function subscribe() {
+  navigator.serviceWorker.ready
+  .then(function(registration) {
+    if (!registration.pushManager) {
+      alert("Your browser doesn't support push notifications");
+      return;
+    }
+    registration.pushManager.subscribe({
+      userVisibleOnly: true 
+    })
+    .then(function (subscription) {
+      console.log("Successfully subscribed: ", subscription);
+      //changeStatus(true);
+    })
+    .catch(function (error) {
+      console.error(error);
+    })
+  })
+}
+
+//To unsubscribe push notification
+function unsubscribe() {
+ 
+}
+
 
   </script>
 

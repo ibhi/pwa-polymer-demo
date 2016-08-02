@@ -8,3 +8,20 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 console.info('Service worker disabled for development, will be generated at build time.');
+
+self.addEventListener("push", function(event) {
+  console.log("Event: Push", event);
+
+  var title = "Push notification demo";
+  var body = "You have received a notification";
+  var tag = "demo";
+  var icon = "./images/rain.png";
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      tag: tag,
+      icon: icon
+    })
+  );
+});

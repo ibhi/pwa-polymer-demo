@@ -1,6 +1,6 @@
 {
   "name": "My App",
-  "short_name": "My App",
+  "short_name": "Fleet",
     "icons": [{
       "src": "images/app-icon-32.png",
       "type": "image/png",
@@ -25,5 +25,6 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#3f51b5",
-  "theme_color": "#3f51b5"
+  "theme_color": "#3f51b5",
+  "gcm_sender_id": "542727791041"
 }

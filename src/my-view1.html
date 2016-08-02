@@ -51,23 +51,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     
-    <firebase-query
+    <!--<firebase-query
         id="query"
         path="/fleets"
         data="{{fleets}}">
-    </firebase-query>
+    </firebase-query>-->
 
-    <app-indexeddb-mirror id="updatesFleets"
+    <!--<app-indexeddb-mirror id="updatesFleets"
       key="/fleets"
       data="[[fleets]]"
       persisted-data="{{activeFleets}}"
       >
-    </app-indexeddb-mirror>
+    </app-indexeddb-mirror>-->
 
     <div class="card">
       <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
-      <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}" fit-to-markers api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
-        <template is="dom-repeat" items="[[activeFleets]]" as="fleet">
+      <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}"  api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
+        <template is="dom-repeat" items="[[persistedData]]" as="fleet">
           <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>
         </template>
       </google-map>
@@ -81,19 +81,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       is: 'my-view1',
       properties: {
-        // fleets: {
-        //   type: Array,
-        //   observer: '_fleetsChanged',
-        //   notify: true
-        // }
+        fleets: {
+          type: Array,
+          // observer: '_fleetsChanged',
+          notify: true
+        },
         map: Object,
+        persistedData: Array,
         activeFleets: {
           type: Array,
           notify: true
         }
       },
+      // observers: ['_fleetsChanged(fleets.splices)'],
       ready: function() {
-        console.log('Indexed db', this.$.updatesFleets.getStoredValue('/fleets'));
+       // console.log('Indexed db', this.$.updatesFleets.getStoredValue('/fleets'));
         // setTimeout(function() {
 
         //   this.fleets =  [{"name":"Denise","latitude":49.83383,"longitude":19.9383},
@@ -108,29 +110,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //         {"name":"Virginia","latitude":56.12128,"longitude":101.17767}];
         // }.bind(this), 3000);
 
-        // var ref = firebase.database().ref('fleets');
-        // ref.on('value', function(snapshot) {
-        //   this.fleets = this._toArray(snapshot.val());
-        //   this.fleets = this.fleets.map(function(fleet) {
-        //     return {
-        //       name: fleet.name,
-        //       latitude: +fleet.latitude,
-        //       longitude: +fleet.longitude
-        //     }
-        //   })
-        //   console.log('Fleets ', this.fleets);
-        // }.bind(this));
+        var ref = firebase.database().ref('fleets');
+        ref.on('value', function(snapshot) {
+          this.fleets = this._toArray(snapshot.val());
+        
+          this.fleets = this.fleets.map(function(fleet) {
+            return {
+              name: fleet.name,
+              latitude: +fleet.latitude,
+              longitude: +fleet.longitude
+            }
+          })
+         
+  
+          addData(this.fleets);
+          getIDBData().then(function(data){           
+           this.persistedData = data;
+            console.log(this.persistedData);           
+          }.bind(this));
+
+        }.bind(this));
       },
-      _fleetsChanged: function(newVal, oldVal) {
-        console.log('Old Value', oldVal);
-        console.log('New Value', newVal);
-        // this.fleets = newVal;
-      },
+      // _fleetsChanged: function(newVal) {
+      //   // console.log('Old Value', oldVal);
+      //   console.log('New Value', newVal);
+      //  // cache.put('fleets', newVal);
+      // //  this.persistedFleets = cache.get('fleets');
+      //   // this.fleets = newVal;
+      // },
       _toArray: function(obj) {
             return Object.keys(obj).map(function(key) {
                 return obj[key];
             });
-        }
+        },
+
+
+  
+    
 
     });
 
