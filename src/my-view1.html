@@ -13,11 +13,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html"> -->
 <link rel="import" href="../bower_components/geo-location/geo-location.html">
 <link rel="import" href="../bower_components/idb-node/idb-node.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
 <dom-module id="my-view1">
 
   <template>
 
-    <style>
+    <style include="app-grid-style">
       :host {
         display: block;
         padding: 10px;
@@ -49,6 +50,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       google-map {
         height: 600px;
       }
+      paper-card {
+        box-sizing: border-box;
+        max-width: 184px;
+        margin: 4px;
+        flex: 0 0 auto;
+      }
+      .col {
+        --app-grid-columns: 3;
+        --app-grid-item-height: 100px;
+      }
+
     </style>
     
     <!--<firebase-query
@@ -64,14 +76,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       >
     </app-indexeddb-mirror>-->
     <idb-node id="db" database-name="idb-fleets-1" version="1" object-store="fleets" key-path="id"></idb-node>
-    <div class="card">
-      <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
-      <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}"  api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
-        <template is="dom-repeat" items="[[persistedData]]" as="fleet">
-          <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>
-        </template>
-      </google-map>
-    </div>
+    <template is="dom-if" if="{{online}}">
+      <div class="card">
+        <geo-location latitude="{{currentLat}}" longitude="{{currentLng}}"></geo-location>
+        <google-map latitude="[[currentLat]]" longitude="[[currentLng]]" map="{{map}}"  api-key="AIzaSyCl1xcLoRekaS0BZljwkv2fWdX4RzcBqn0">
+          <template is="dom-repeat" items="[[persistedData]]" as="fleet">
+            <google-map-marker map="[[map]]" latitude="[[fleet.latitude]]" longitude="[[fleet.longitude]]" title="[[fleet.name]]" draggable="true"></google-map-marker>
+          </template>
+        </google-map>
+      </div>
+    </template>
+    <template is="dom-if" if="{{!online}}">
+      <div class="col">
+        <div class="app-grid">
+            <template is="dom-repeat" items="[[persistedData]]" as="fleet">
+              <paper-card heading="[[fleet.name]]" class="cyan">
+                <div class="card-actions">
+                  <paper-icon-button icon="maps:place" style="color:white;"></paper-icon-button>
+                  <span>Lat: [[fleet.latitude]] Lng: [[fleet.longitude]]</span>
+                </div>
+              </paper-card>
+            </template>
+        </div>
+      </div>
+    </template>
+        
+      
 
   </template>
 
@@ -87,8 +117,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         map: Object,
         persistedData: Array,
-        activeFleets: {
-          type: Array,
+        online: {
+          type: Boolean,
+          value: function() {
+            return navigator.onLine;
+          },
           notify: true
         }
       },
@@ -119,6 +152,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               this.persistedData = fleets;
             }.bind(this));
           }.bind(this));
+        }.bind(this));
+
+        window.addEventListener('online', function() {
+          this.online = true;
+        }.bind(this));
+        window.addEventListener('offline', function() {
+          this.online = false;
         }.bind(this));
       },
 
